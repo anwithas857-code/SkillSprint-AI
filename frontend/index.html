@@ -52,11 +52,22 @@ async function answer(i){let q=qs[qi];await api('/api/answers',{method:'POST',he
 async function refresh(){let d=await api('/api/analysis/'+sid), c=await api('/api/courses/'+sid), car=await api('/api/career/'+sid);
 document.getElementById('overall').textContent=d.overall+'%';document.getElementById('overallbar').style.width=d.overall+'%';document.getElementById('gap').textContent=`You need about ${d.gap}% improvement to reach 100%, or ${car.improve_to_80}% to reach an 80% readiness milestone.`;document.getElementById('weak').textContent=d.weakest;document.getElementById('insight').textContent=d.insight;document.getElementById('capstage').textContent=car.stage;document.getElementById('captext').textContent=d.capability;document.getElementById('stage').textContent=`Target: ${d.student.role}`;
 document.getElementById('skills').innerHTML=Object.entries(d.skills).map(([k,v])=>`<div class="skill"><div class="skilltop"><b>${k}</b><span>${v}%</span></div><div class="bar"><i style="width:${v}%"></i></div></div>`).join('');
-document.getElementById('courses').innerHTML=c.map(x=>`<div class="course"><div><b>${x.title}</b><br><small>${x.skill} • ${x.level} • ${x.description}</small></div><button class="${x.done?'light':'primary'}" ${x.done?'disabled':''} onclick="takeCourse('${x.skill}',this)">${x.done?'✓ Complete':'Start'}</button></div>`).join('');
+document.getElementById('courses').innerHTML=c.map(x=>`<div class="course"><div><b>${x.title}</b><br><small>${x.skill} • ${x.level} • ${x.description}</small></div>
+<a class="primary" href="${x.url}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">${x.done?'✓ Complete':'Start Learning'}</a></div>`).join('');
 document.getElementById('actions').innerHTML=car.actions.map(x=>`<p>✓ ${x}</p>`).join('');
 let dash=await api('/api/dashboard/'+sid);document.getElementById('progress').textContent=`${dash.progress.length} learning item(s) started • ${dash.progress.filter(x=>x.done).length} completed`;
 document.getElementById('reminderBox').innerHTML=dash.reminders.map(x=>`<p>🔔 ${x.text} — due ${x.due_date}</p>`).join('')}
-async function takeCourse(skill,btn){await api('/api/progress/start/'+sid+'/'+encodeURIComponent(skill),{method:'POST'});btn.textContent='✓ Started';btn.disabled=true;await refresh()}
+async function takeCourse(skill,url,btn){
+    window.open(url,'_blank');
+    try{
+        await api('/api/progress/start/'+sid+'/'+encodeURIComponent(skill),{method:'POST'});
+        btn.textContent='✓ Started';
+        btn.disabled=true;
+        await refresh();
+    }catch(e){
+        alert(e.message);
+    }
+}
 async function remind(){let r=await api('/api/reminders/'+sid,{method:'POST'});document.getElementById('reminderBox').innerHTML+=`<p class="success">🔔 ${r.text} — due ${r.due_date}</p>`}
 </script>
 </body></html>
