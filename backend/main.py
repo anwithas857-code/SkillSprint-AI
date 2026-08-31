@@ -11,11 +11,14 @@ BASE = Path(__file__).resolve().parent
 DB = BASE / "skillsprint.db"
 FRONTEND = BASE.parent / "frontend" / "index.html"
 
-app = FastAPI(title="SkillSprint AI")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], allow_credentials=True,
-    allow_methods=["*"], allow_headers=["*"]
+    allow_origins=[
+        "https://anwithas857-code.github.io"
+    ],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 ROLE_SKILLS = {
