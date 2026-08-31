@@ -1,0 +1,62 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SkillSprint AI</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:#f6f7fb;color:#172033}
+header{background:linear-gradient(135deg,#171844,#3436a8);color:#fff;padding:28px 6% 34px}
+nav{display:flex;justify-content:space-between;align-items:center;max-width:1180px;margin:auto}.brand{font-size:25px;font-weight:850}.brand span{color:#b9baff}
+.hero{max-width:1180px;margin:28px auto 0}.hero h1{font-size:42px;margin:0 0 8px}.hero p{font-size:17px;opacity:.85;max-width:720px}
+main{max-width:1180px;margin:24px auto;padding:0 18px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}.card{background:#fff;border:1px solid #e3e6ef;border-radius:18px;padding:22px;box-shadow:0 8px 24px #1d24400d}.s5{grid-column:span 5}.s7{grid-column:span 7}.s12{grid-column:span 12}
+h2{margin-top:0}.muted{color:#667085}.big{font-size:54px;font-weight:850}.bar{height:10px;background:#e8eaf2;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:#5b5ce2;border-radius:99px}
+button{border:0;border-radius:11px;padding:11px 16px;font-weight:750;cursor:pointer}.primary{background:#5557dc;color:#fff}.light{background:#eeeefe;color:#4143bd}.pill{padding:7px 11px;border-radius:999px;background:#eeeefe;color:#4547bf;font-size:12px;font-weight:800}
+label{display:block;font-weight:700}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}input,select{width:100%;padding:12px;border:1px solid #d8dce7;border-radius:10px;margin-top:7px;font:inherit}
+.option{display:block;width:100%;text-align:left;background:#f8f9fc;border:1px solid #e2e5ed;margin:9px 0}.option:hover{background:#eeeefe;border-color:#7778e5}
+.skill{margin:15px 0}.skilltop{display:flex;justify-content:space-between;margin-bottom:6px}.tag{padding:3px 8px;border-radius:99px;background:#eeeefe;font-size:12px}.course{display:flex;justify-content:space-between;align-items:center;border:1px solid #e2e5ed;padding:15px;border-radius:13px;margin:10px 0}.notice{padding:13px;border-radius:12px;background:#fff7e6;margin-top:15px}.hidden{display:none}.success{background:#e9fbf4;padding:12px;border-radius:12px;margin-top:12px}
+@media(max-width:800px){.s5,.s7,.s12{grid-column:span 12}.formgrid{grid-template-columns:1fr}.hero h1{font-size:32px}}
+</style>
+</head>
+<body>
+<header><nav><div class="brand">Skill<span>Sprint</span> AI</div><span class="pill">STUDENT AI TRACK</span></nav>
+<div class="hero"><h1>Know your skills. Build your career.</h1><p>Assess what you know, discover your weak areas, get a focused learning plan, track progress and see how close you are to your target career.</p></div></header>
+<main>
+<section id="setup" class="grid">
+<div class="card s12"><h2>👤 Start your student profile</h2><div class="formgrid">
+<label>Your name<input id="name" placeholder="e.g. Riya"></label>
+<label>Target career<select id="role"><option>Data Analyst</option><option>Software Developer</option><option>AI/ML Engineer</option><option>UI/UX Designer</option><option>Digital Marketer</option></select></label>
+</div><br><label>Hours available per week<input id="hours" type="number" min="2" max="40" value="8"></label><br>
+<button class="primary" onclick="start()">Create profile & start assessment</button></div></section>
+
+<section id="app" class="hidden">
+<div class="grid">
+<div class="card s7"><div class="muted">CAREER READINESS</div><div class="big" id="overall">0%</div><div class="bar"><i id="overallbar"></i></div><p id="gap"></p><b id="stage"></b></div>
+<div class="card s5"><h2>🔥 Priority skill</h2><div class="big" id="weak">—</div><p class="muted">Start here for the fastest improvement.</p><button class="primary" onclick="show('learning')">View learning plan</button></div>
+<div class="card s12" id="assessment"><h2>🧠 AI Skill Assessment</h2><p class="muted" id="qmeta"></p><div id="question"></div></div>
+<div class="card s5"><h2>📊 Skill analysis</h2><div id="skills"></div></div>
+<div class="card s7"><h2>💡 AI feedback</h2><p id="insight"></p><div class="notice">Scores start from your assessment answers. Complete learning tasks and re-assess to measure improvement.</div></div>
+<div class="card s12" id="learning"><h2>📚 Recommended learning</h2><div id="courses"></div></div>
+<div class="card s7"><h2>🎯 What you're capable of</h2><h3 id="capstage"></h3><p id="captext"></p><div id="actions"></div></div>
+<div class="card s5"><h2>🔔 Reminders & progress</h2><p id="progress"></p><button class="light" onclick="remind()">Create a 2-day reminder</button><div id="reminderBox"></div></div>
+</div></section>
+</main>
+<script>
+const API='http://127.0.0.1:8000/api'; let sid=null, qs=[], qi=0;
+async function api(path,opt){let r=await fetch(API+path,opt);let d=await r.json();if(!r.ok)throw Error(d.detail||'Request failed');return d}
+async function start(){try{let d=await api('/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('name').value,role:document.getElementById('role').value,hours:+document.getElementById('hours').value})});sid=d.id;qs=await api('/questions/'+sid);qi=0;document.getElementById('setup').classList.add('hidden');document.getElementById('app').classList.remove('hidden');renderQ();await refresh()}catch(e){alert(e.message)}}
+function renderQ(){if(qi>=qs.length){document.getElementById('assessment').innerHTML='<h2>✅ Assessment complete</h2><p>Your skill profile has been updated. Review your gaps and start your recommended learning plan.</p>';return}
+let q=qs[qi];document.getElementById('qmeta').textContent=`Question ${qi+1} of ${qs.length} • ${q.skill}`;
+document.getElementById('question').innerHTML=`<h3>${q.question}</h3>`+q.options.map((o,i)=>`<button class="option" onclick="answer(${i})">${o}</button>`).join('')}
+async function answer(i){let q=qs[qi];await api('/answers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id:sid,skill:q.skill,question:q.question,selected:i,correct:i===0?1:0})});qi++;renderQ();if(qi>=qs.length)refresh()}
+async function refresh(){let d=await api('/analysis/'+sid), c=await api('/courses/'+sid), car=await api('/career/'+sid);
+document.getElementById('overall').textContent=d.overall+'%';document.getElementById('overallbar').style.width=d.overall+'%';document.getElementById('gap').textContent=`You need about ${d.gap}% improvement to reach 100%, or ${car.improve_to_80}% to reach an 80% readiness milestone.`;document.getElementById('weak').textContent=d.weakest;document.getElementById('insight').textContent=d.insight;document.getElementById('capstage').textContent=car.stage;document.getElementById('captext').textContent=d.capability;document.getElementById('stage').textContent=`Target: ${d.student.role}`;
+document.getElementById('skills').innerHTML=Object.entries(d.skills).map(([k,v])=>`<div class="skill"><div class="skilltop"><b>${k}</b><span>${v}%</span></div><div class="bar"><i style="width:${v}%"></i></div></div>`).join('');
+document.getElementById('courses').innerHTML=c.map(x=>`<div class="course"><div><b>${x.title}</b><br><small>${x.skill} • ${x.level} • ${x.description}</small></div><button class="${x.done?'light':'primary'}" ${x.done?'disabled':''} onclick="takeCourse('${x.skill}',this)">${x.done?'✓ Complete':'Start'}</button></div>`).join('');
+document.getElementById('actions').innerHTML=car.actions.map(x=>`<p>✓ ${x}</p>`).join('');
+let dash=await api('/dashboard/'+sid);document.getElementById('progress').textContent=`${dash.progress.length} learning item(s) started • ${dash.progress.filter(x=>x.done).length} completed`;
+document.getElementById('reminderBox').innerHTML=dash.reminders.map(x=>`<p>🔔 ${x.text} — due ${x.due_date}</p>`).join('')}
+async function takeCourse(skill,btn){await api('/progress/start/'+sid+'/'+encodeURIComponent(skill),{method:'POST'});btn.textContent='✓ Started';btn.disabled=true;await refresh()}
+async function remind(){let r=await api('/reminders/'+sid,{method:'POST'});document.getElementById('reminderBox').innerHTML+=`<p class="success">🔔 ${r.text} — due ${r.due_date}</p>`}
+</script>
+</body></html>
