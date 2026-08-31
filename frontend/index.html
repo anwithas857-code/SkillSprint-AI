@@ -44,19 +44,19 @@ label{display:block;font-weight:700}.formgrid{display:grid;grid-template-columns
 <script>
 const API='https://skillsprint-ai-7of7.onrender.com'; let sid=null, qs=[], qi=0;
 async function api(path,opt){let r=await fetch(API+path,opt);let d=await r.json();if(!r.ok)throw Error(d.detail||'Request failed');return d}
-async function start(){try{let d=await api('/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('name').value,role:document.getElementById('role').value,hours:+document.getElementById('hours').value})});sid=d.id;qs=await api('/questions/'+sid);qi=0;document.getElementById('setup').classList.add('hidden');document.getElementById('app').classList.remove('hidden');renderQ();await refresh()}catch(e){alert(e.message)}}
+async function start(){try{let d=await api('/api/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('name').value,role:document.getElementById('role').value,hours:+document.getElementById('hours').value})});sid=d.id;qs=await api('/api/questions/'+sid);qi=0;document.getElementById('setup').classList.add('hidden');document.getElementById('app').classList.remove('hidden');renderQ();await refresh()}catch(e){alert(e.message)}}
 function renderQ(){if(qi>=qs.length){document.getElementById('assessment').innerHTML='<h2>✅ Assessment complete</h2><p>Your skill profile has been updated. Review your gaps and start your recommended learning plan.</p>';return}
 let q=qs[qi];document.getElementById('qmeta').textContent=`Question ${qi+1} of ${qs.length} • ${q.skill}`;
 document.getElementById('question').innerHTML=`<h3>${q.question}</h3>`+q.options.map((o,i)=>`<button class="option" onclick="answer(${i})">${o}</button>`).join('')}
-async function answer(i){let q=qs[qi];await api('/answers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id:sid,skill:q.skill,question:q.question,selected:i,correct:i===0?1:0})});qi++;renderQ();if(qi>=qs.length)refresh()}
-async function refresh(){let d=await api('/analysis/'+sid), c=await api('/courses/'+sid), car=await api('/career/'+sid);
+async function answer(i){let q=qs[qi];await api('/api/answers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id:sid,skill:q.skill,question:q.question,selected:i,correct:i===0?1:0})});qi++;renderQ();if(qi>=qs.length)refresh()}
+async function refresh(){let d=await api('/api/analysis/'+sid), c=await api('/api/courses/'+sid), car=await api('/api/career/'+sid);
 document.getElementById('overall').textContent=d.overall+'%';document.getElementById('overallbar').style.width=d.overall+'%';document.getElementById('gap').textContent=`You need about ${d.gap}% improvement to reach 100%, or ${car.improve_to_80}% to reach an 80% readiness milestone.`;document.getElementById('weak').textContent=d.weakest;document.getElementById('insight').textContent=d.insight;document.getElementById('capstage').textContent=car.stage;document.getElementById('captext').textContent=d.capability;document.getElementById('stage').textContent=`Target: ${d.student.role}`;
 document.getElementById('skills').innerHTML=Object.entries(d.skills).map(([k,v])=>`<div class="skill"><div class="skilltop"><b>${k}</b><span>${v}%</span></div><div class="bar"><i style="width:${v}%"></i></div></div>`).join('');
 document.getElementById('courses').innerHTML=c.map(x=>`<div class="course"><div><b>${x.title}</b><br><small>${x.skill} • ${x.level} • ${x.description}</small></div><button class="${x.done?'light':'primary'}" ${x.done?'disabled':''} onclick="takeCourse('${x.skill}',this)">${x.done?'✓ Complete':'Start'}</button></div>`).join('');
 document.getElementById('actions').innerHTML=car.actions.map(x=>`<p>✓ ${x}</p>`).join('');
-let dash=await api('/dashboard/'+sid);document.getElementById('progress').textContent=`${dash.progress.length} learning item(s) started • ${dash.progress.filter(x=>x.done).length} completed`;
+let dash=await api('/api/dashboard/'+sid);document.getElementById('progress').textContent=`${dash.progress.length} learning item(s) started • ${dash.progress.filter(x=>x.done).length} completed`;
 document.getElementById('reminderBox').innerHTML=dash.reminders.map(x=>`<p>🔔 ${x.text} — due ${x.due_date}</p>`).join('')}
-async function takeCourse(skill,btn){await api('/progress/start/'+sid+'/'+encodeURIComponent(skill),{method:'POST'});btn.textContent='✓ Started';btn.disabled=true;await refresh()}
-async function remind(){let r=await api('/reminders/'+sid,{method:'POST'});document.getElementById('reminderBox').innerHTML+=`<p class="success">🔔 ${r.text} — due ${r.due_date}</p>`}
+async function takeCourse(skill,btn){await api('/api/progress/start/'+sid+'/'+encodeURIComponent(skill),{method:'POST'});btn.textContent='✓ Started';btn.disabled=true;await refresh()}
+async function remind(){let r=await api('/api/reminders/'+sid,{method:'POST'});document.getElementById('reminderBox').innerHTML+=`<p class="success">🔔 ${r.text} — due ${r.due_date}</p>`}
 </script>
 </body></html>
