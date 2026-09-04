@@ -42,7 +42,7 @@ label{display:block;font-weight:700}.formgrid{display:grid;grid-template-columns
 </div></section>
 </main>
 <script>
-const API='http://127.0.0.1:8000/api'; let sid=null, qs=[], qi=0;
+const API='https://skillsprint-ai-7of7.onrender.com' let sid=null, qs=[], qi=0;
 async function api(path,opt){let r=await fetch(API+path,opt);let d=await r.json();if(!r.ok)throw Error(d.detail||'Request failed');return d}
 async function start(){try{let d=await api('/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('name').value,role:document.getElementById('role').value,hours:+document.getElementById('hours').value})});sid=d.id;qs=await api('/questions/'+sid);qi=0;document.getElementById('setup').classList.add('hidden');document.getElementById('app').classList.remove('hidden');renderQ();await refresh()}catch(e){alert(e.message)}}
 function renderQ(){if(qi>=qs.length){document.getElementById('assessment').innerHTML='<h2>✅ Assessment complete</h2><p>Your skill profile has been updated. Review your gaps and start your recommended learning plan.</p>';return}
