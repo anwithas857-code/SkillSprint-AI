@@ -14,7 +14,7 @@ h2{margin-top:0}.muted{color:#667085}.big{font-size:54px;font-weight:850}.bar{he
 button{border:0;border-radius:11px;padding:11px 16px;font-weight:750;cursor:pointer}.primary{background:#5557dc;color:#fff}.light{background:#eeeefe;color:#4143bd}.pill{padding:7px 11px;border-radius:999px;background:#eeeefe;color:#4547bf;font-size:12px;font-weight:800}
 label{display:block;font-weight:700}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}input,select{width:100%;padding:12px;border:1px solid #d8dce7;border-radius:10px;margin-top:7px;font:inherit}
 .option{display:block;width:100%;text-align:left;background:#f8f9fc;border:1px solid #e2e5ed;margin:9px 0}.option:hover{background:#eeeefe;border-color:#7778e5}
-.skill{margin:15px 0}.skilltop{display:flex;justify-content:space-between;margin-bottom:6px}.tag{padding:3px 8px;border-radius:99px;background:#eeeefe;font-size:12px}.course{display:flex;justify-content:space-between;align-items:center;border:1px solid #e2e5ed;padding:15px;border-radius:13px;margin:10px 0}.notice{padding:13px;border-radius:12px;background:#fff7e6;margin-top:15px}.hidden{display:none}.success{background:#e9fbf4;padding:12px;border-radius:12px;margin-top:12px}
+.skill{margin:15px 0}.skilltop{display:flex;justify-content:space-between;margin-bottom:6px}.tag{padding:3px 8px;border-radius:99px;background:#eeeefe;font-size:12px}.course{display:flex;justify-content:space-between;align-items:center;border:1px solid #e2e5ed;padding:15px;border-radius:13px;margin:10px 0}.notice{padding:13px;border-radius:12px;background:#fff7e6;margin-top:15px}.hidden{display:none}.success{background:#e9fbf4;padding:12px;border-radius:12px;margin-top:12px}.warning{background:#fff7e6;padding:12px;border-radius:12px;margin-top:12px}
 @media(max-width:800px){.s5,.s7,.s12{grid-column:span 12}.formgrid{grid-template-columns:1fr}.hero h1{font-size:32px}}
 </style>
 </head>
@@ -38,7 +38,11 @@ label{display:block;font-weight:700}.formgrid{display:grid;grid-template-columns
 <div class="card s7"><h2>💡 AI feedback</h2><p id="insight"></p><div class="notice">Scores start from your assessment answers. Complete learning tasks and re-assess to measure improvement.</div></div>
 <div class="card s12" id="learning"><h2>📚 Recommended learning</h2><div id="courses"></div></div>
 <div class="card s7"><h2>🎯 What you're capable of</h2><h3 id="capstage"></h3><p id="captext"></p><div id="actions"></div></div>
-<div class="card s5"><h2>🔔 Reminders & progress</h2><p id="progress"></p><button class="light" onclick="remind()">Create a 2-day reminder</button><div id="reminderBox"></div></div>
+<div class="card s5"><h2>🔔 Reminders & progress</h2><p id="progress"></p>
+<button class="light" onclick="enableNotifications()">🔔 Enable browser notifications</button>
+<button class="primary" onclick="remind()">Create a 2-day reminder</button>
+<div id="notificationStatus"></div>
+<div id="reminderBox"></div></div>
 </div></section>
 </main>
 <script>
@@ -56,7 +60,7 @@ document.getElementById('courses').innerHTML=c.map(x=>`<div class="course"><div>
 <a class="primary" href="${x.url}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">${x.done?'✓ Complete':'Start Learning'}</a></div>`).join('');
 document.getElementById('actions').innerHTML=car.actions.map(x=>`<p>✓ ${x}</p>`).join('');
 let dash=await api('/api/dashboard/'+sid);document.getElementById('progress').textContent=`${dash.progress.length} learning item(s) started • ${dash.progress.filter(x=>x.done).length} completed`;
-document.getElementById('reminderBox').innerHTML=dash.reminders.map(x=>`<p>🔔 ${x.text} — due ${x.due_date}</p>`).join('')}
+document.getElementById('reminderBox').innerHTML=dash.reminders.map(x=>`<p>🔔 ${x.text} — due ${x.due_date}</p>`).join('');restoreBrowserReminder()}
 async function takeCourse(skill,url,btn){
     window.open(url,'_blank');
     try{
@@ -68,6 +72,71 @@ async function takeCourse(skill,url,btn){
         alert(e.message);
     }
 }
-async function remind(){let r=await api('/api/reminders/'+sid,{method:'POST'});document.getElementById('reminderBox').innerHTML+=`<p class="success">🔔 ${r.text} — due ${r.due_date}</p>`}
+async function enableNotifications(){
+    const box=document.getElementById('notificationStatus');
+    if(!('Notification' in window)){
+        box.innerHTML='<p class="warning">Your browser does not support notifications. The reminder will still appear inside SkillSprint.</p>';
+        return false;
+    }
+    if(Notification.permission==='granted'){
+        box.innerHTML='<p class="success">✅ Browser notifications are enabled.</p>';
+        return true;
+    }
+    if(Notification.permission==='denied'){
+        box.innerHTML='<p class="warning">Notifications are blocked for this site. Allow them in your browser settings.</p>';
+        return false;
+    }
+    const permission=await Notification.requestPermission();
+    if(permission==='granted'){
+        box.innerHTML='<p class="success">✅ Browser notifications are enabled.</p>';
+        return true;
+    }
+    box.innerHTML='<p class="warning">Notification permission was not granted. Your reminder will still appear in SkillSprint.</p>';
+    return false;
+}
+
+function scheduleBrowserReminder(dueDate,message){
+    const key='skillsprint_reminder_'+sid;
+    localStorage.setItem(key,JSON.stringify({dueDate,message}));
+    const due=new Date(dueDate+'T09:00:00');
+    const delay=due.getTime()-Date.now();
+    if(delay<=0){
+        if('Notification' in window && Notification.permission==='granted'){
+            new Notification('SkillSprint AI reminder',{body:message});
+        }
+        return;
+    }
+    const maxDelay=2147483647;
+    if(delay<=maxDelay && 'Notification' in window && Notification.permission==='granted'){
+        setTimeout(function(){
+            new Notification('SkillSprint AI reminder',{body:message});
+        },delay);
+    } else {
+        setTimeout(function(){scheduleBrowserReminder(dueDate,message);},maxDelay);
+    }
+}
+
+function restoreBrowserReminder(){
+    const saved=localStorage.getItem('skillsprint_reminder_'+sid);
+    if(!saved)return;
+    try{
+        const reminder=JSON.parse(saved);
+        if(reminder.dueDate && reminder.message) scheduleBrowserReminder(reminder.dueDate,reminder.message);
+    }catch(e){
+        localStorage.removeItem('skillsprint_reminder_'+sid);
+    }
+}
+
+async function remind(){
+    try{
+        const enabled=await enableNotifications();
+        const r=await api('/api/reminders/'+sid,{method:'POST'});
+        document.getElementById('reminderBox').innerHTML+=`<p class="success">🔔 ${r.text} — due ${r.due_date}</p>`;
+        scheduleBrowserReminder(r.due_date,r.text);
+        if(enabled){
+            document.getElementById('notificationStatus').innerHTML='<p class="success">✅ Reminder saved. A browser notification is scheduled for 9:00 AM on the due date.</p>';
+        }
+    }catch(e){alert(e.message)}
+}
 </script>
 </body></html>
