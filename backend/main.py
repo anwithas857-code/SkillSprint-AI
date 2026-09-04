@@ -161,11 +161,52 @@ def get_questions(student_id:int):
 
 @app.post("/api/answers")
 def save_answer(a: Answer):
-    c=conn()
-    c.execute("""INSERT INTO answers(student_id,skill,question,selected,correct,created_at)
-                VALUES(?,?,?,?,?,?)""",(a.student_id,a.skill,a.question,a.selected,a.correct,datetime.now().isoformat()))
-    c.commit(); c.close()
-    return {"ok":True}
+    c = conn()
+    student = c.execute(
+        "SELECT * FROM students WHERE id=?",
+        (a.student_id,)
+    ).fetchone()
+
+    if not student:
+        c.close()
+        raise HTTPException(404, "Student not found")
+
+    # Find the real question in the server-side question bank.
+    question_bank = QUESTIONS.get(student["role"], [])
+    matched = next(
+        (q for q in question_bank if q[0] == a.skill and q[1] == a.question),
+        None
+    )
+
+    if not matched:
+        c.close()
+        raise HTTPException(400, "Invalid assessment question")
+
+    options = matched[2]
+    correct_index = matched[3]
+
+    if a.selected < 0 or a.selected >= len(options):
+        c.close()
+        raise HTTPException(400, "Invalid answer option")
+
+    # The backend calculates correctness; the browser cannot fake the score.
+    is_correct = 1 if a.selected == correct_index else 0
+
+    c.execute(
+        """INSERT INTO answers(student_id,skill,question,selected,correct,created_at)
+           VALUES(?,?,?,?,?,?)""",
+        (
+            a.student_id,
+            a.skill,
+            a.question,
+            a.selected,
+            is_correct,
+            datetime.now().isoformat()
+        )
+    )
+    c.commit()
+    c.close()
+    return {"ok": True, "correct": bool(is_correct)}
 
 def scores(student_id):
     c=conn(); s=c.execute("SELECT * FROM students WHERE id=?",(student_id,)).fetchone()
@@ -196,18 +237,129 @@ def analysis(student_id:int):
     }
 
 @app.get("/api/courses/{student_id}")
-def courses(student_id:int):
-    _,sk,_=scores(student_id)
-    weak=sorted(sk.items(),key=lambda x:x[1])
-    c=conn()
-    out=[]
-    for skill,score in weak[:3]:
-        item=COURSES.get(skill,[f"{skill} Skill Builder","Beginner","Focused practice and a mini project"])
-        existing=c.execute("SELECT id,done FROM progress WHERE student_id=? AND skill=? ORDER BY id DESC LIMIT 1",(student_id,skill)).fetchone()
-        out.append({"skill":skill,"score":score,"title":item[0],"level":item[1],"description":item[2],
-                    "progress_id": existing["id"] if existing else None,"done":bool(existing["done"]) if existing else False})
-    c.close(); return out
+def courses(student_id: int):
+    _, sk, _ = scores(student_id)
+    weak = sorted(sk.items(), key=lambda x: x[1])
 
+    resources = {
+        "Python": (
+            "Python Fundamentals",
+            "Beginner",
+            "Learn Python basics with interactive lessons and exercises.",
+            "https://www.freecodecamp.org/learn/scientific-computing-with-python/"
+        ),
+        "SQL": (
+            "SQL for Data Analysis",
+            "Beginner",
+            "Practice SQL queries, filtering, grouping and data analysis.",
+            "https://sqlbolt.com/"
+        ),
+        "Data Visualisation": (
+            "Data Visualization",
+            "Beginner",
+            "Learn how to turn data into clear and useful visualizations.",
+            "https://www.freecodecamp.org/learn/data-analysis-with-python/"
+        ),
+        "Statistics": (
+            "Statistics Fundamentals",
+            "Beginner",
+            "Build your statistics foundation for data-driven decisions.",
+            "https://www.khanacademy.org/math/statistics-probability"
+        ),
+        "Communication": (
+            "Communication Skills",
+            "Beginner",
+            "Improve professional communication and presentation skills.",
+            "https://www.coursera.org/articles/communication-skills"
+        ),
+        "JavaScript": (
+            "JavaScript Fundamentals",
+            "Beginner",
+            "Learn JavaScript programming through practical examples.",
+            "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures-v8/"
+        ),
+        "Git": (
+            "Git & GitHub",
+            "Beginner",
+            "Learn version control and how to work with GitHub projects.",
+            "https://www.freecodecamp.org/news/learn-the-basics-of-git-in-under-10-minutes/"
+        ),
+        "Machine Learning": (
+            "Machine Learning Fundamentals",
+            "Beginner",
+            "Learn the core ideas behind machine learning.",
+            "https://www.coursera.org/learn/machine-learning"
+        ),
+        "Math": (
+            "Mathematics for AI",
+            "Beginner",
+            "Strengthen the mathematics needed for AI and machine learning.",
+            "https://www.khanacademy.org/math"
+        ),
+        "UX Research": (
+            "UX Research Fundamentals",
+            "Beginner",
+            "Learn how to understand users and design better experiences.",
+            "https://www.coursera.org/articles/ux-research"
+        ),
+        "Figma": (
+            "Figma for Beginners",
+            "Beginner",
+            "Learn the basics of interface design and prototyping.",
+            "https://help.figma.com/hc/en-us/categories/360002051613-Get-started"
+        ),
+        "Content": (
+            "Content Marketing",
+            "Beginner",
+            "Learn how to create useful content for digital audiences.",
+            "https://academy.hubspot.com/courses/content-marketing"
+        ),
+        "Analytics": (
+            "Digital Analytics",
+            "Beginner",
+            "Learn how to measure and understand digital performance.",
+            "https://analytics.google.com/analytics/academy/"
+        ),
+        "SEO": (
+            "SEO Fundamentals",
+            "Beginner",
+            "Learn the foundations of search engine optimization.",
+            "https://developers.google.com/search/docs/fundamentals/seo-starter-guide"
+        ),
+        "Social Media": (
+            "Social Media Marketing",
+            "Beginner",
+            "Learn practical social media marketing fundamentals.",
+            "https://academy.hubspot.com/courses/social-media"
+        )
+    }
+
+    c = conn()
+    out = []
+
+    for skill, score in weak[:3]:
+        item = resources.get(skill)
+        if not item:
+            continue
+
+        existing = c.execute(
+            "SELECT id,done FROM progress WHERE student_id=? AND skill=? ORDER BY id DESC LIMIT 1",
+            (student_id, skill)
+        ).fetchone()
+
+        out.append({
+            "skill": skill,
+            "score": score,
+            "title": item[0],
+            "level": item[1],
+            "description": item[2],
+            "url": item[3],
+            "progress_id": existing["id"] if existing else None,
+            "done": bool(existing["done"]) if existing else False
+        })
+
+    c.close()
+    return out
 @app.post("/api/progress")
 def create_progress(a: Complete):
     c=conn()
@@ -219,13 +371,31 @@ def create_progress(a: Complete):
 
 @app.post("/api/progress/start/{student_id}/{skill}")
 def start_course(student_id:int,skill:str):
-    item=COURSES.get(skill,[f"{skill} Skill Builder","Beginner","Focused practice"])
+    if skill not in COURSES:
+        raise HTTPException(404, "Course not found for this skill")
+    item = COURSES[skill]
     due=(datetime.now()+timedelta(days=7)).date().isoformat()
     c=conn()
-    cur=c.execute("INSERT INTO progress(student_id,skill,course,done,due_date,updated_at) VALUES(?,?,?,?,?,?)",
-                  (student_id,skill,item[0],0,due,datetime.now().isoformat()))
+    existing = c.execute(
+        "SELECT id,done,due_date FROM progress WHERE student_id=? AND skill=? ORDER BY id DESC LIMIT 1",
+        (student_id, skill)
+    ).fetchone()
+
+    if existing:
+        c.close()
+        return {
+            "id": existing["id"],
+            "due_date": existing["due_date"],
+            "already_started": True,
+            "done": bool(existing["done"])
+        }
+
+    cur=c.execute(
+        "INSERT INTO progress(student_id,skill,course,done,due_date,updated_at) VALUES(?,?,?,?,?,?)",
+        (student_id,skill,item[0],0,due,datetime.now().isoformat())
+    )
     c.commit(); pid=cur.lastrowid; c.close()
-    return {"id":pid,"due_date":due}
+    return {"id":pid,"due_date":due,"already_started":False,"done":False}
 
 @app.get("/api/dashboard/{student_id}")
 def dashboard(student_id:int):
