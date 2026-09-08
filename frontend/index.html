@@ -33,7 +33,7 @@ label{display:block;font-weight:700}.formgrid{display:grid;grid-template-columns
 <div class="grid">
 <div class="card s7"><div class="muted">CAREER READINESS</div><div class="big" id="overall">0%</div><div class="bar"><i id="overallbar"></i></div><p id="gap"></p><b id="stage"></b></div>
 <div class="card s5"><h2>🔥 Priority skill</h2><div class="big" id="weak">—</div><p class="muted">Start here for the fastest improvement.</p><button class="primary" onclick="show('learning')">View learning plan</button></div>
-<div class="card s12" id="assessment"><h2>🧠 AI Skill Assessment</h2><p class="muted" id="qmeta"></p><div id="question"></div></div>
+<div class="card s12" id="assessment"><h2>🧠 AI Skill Assessment</h2><p class="muted" id="qmeta"></p><p class="muted">🔀 Questions and answer choices are randomized for each assessment.</p><div id="question"></div></div>
 <div class="card s5"><h2>📊 Skill analysis</h2><div id="skills"></div></div>
 <div class="card s7"><h2>💡 AI feedback</h2><p id="insight"></p><div class="notice">Scores start from your assessment answers. Complete learning tasks and re-assess to measure improvement.</div></div>
 <div class="card s12" id="learning"><h2>📚 Recommended learning</h2><div id="courses"></div></div>
@@ -52,7 +52,7 @@ async function start(){try{let d=await api('/api/students',{method:'POST',header
 function renderQ(){if(qi>=qs.length){document.getElementById('assessment').innerHTML='<h2>✅ Assessment complete</h2><p>Your skill profile has been updated. Review your gaps and start your recommended learning plan.</p>';return}
 let q=qs[qi];document.getElementById('qmeta').textContent=`Question ${qi+1} of ${qs.length} • ${q.skill}`;
 document.getElementById('question').innerHTML=`<h3>${q.question}</h3>`+q.options.map((o,i)=>`<button class="option" onclick="answer(${i})">${o}</button>`).join('')}
-async function answer(i){let q=qs[qi];await api('/api/answers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id:sid,skill:q.skill,question:q.question,selected:i,correct:i===0?1:0})});qi++;renderQ();if(qi>=qs.length)refresh()}
+async function answer(i){let q=qs[qi];await api('/api/answers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_id:sid,skill:q.skill,question:q.question,selected:q.options[i]})});qi++;renderQ();if(qi>=qs.length)refresh()}
 async function refresh(){let d=await api('/api/analysis/'+sid), c=await api('/api/courses/'+sid), car=await api('/api/career/'+sid);
 document.getElementById('overall').textContent=d.overall+'%';document.getElementById('overallbar').style.width=d.overall+'%';document.getElementById('gap').textContent=`You need about ${d.gap}% improvement to reach 100%, or ${car.improve_to_80}% to reach an 80% readiness milestone.`;document.getElementById('weak').textContent=d.weakest;document.getElementById('insight').textContent=d.insight;document.getElementById('capstage').textContent=car.stage;document.getElementById('captext').textContent=d.capability;document.getElementById('stage').textContent=`Target: ${d.student.role}`;
 document.getElementById('skills').innerHTML=Object.entries(d.skills).map(([k,v])=>`<div class="skill"><div class="skilltop"><b>${k}</b><span>${v}%</span></div><div class="bar"><i style="width:${v}%"></i></div></div>`).join('');

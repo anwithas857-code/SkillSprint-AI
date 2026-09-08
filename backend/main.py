@@ -33,38 +33,62 @@ QUESTIONS = {
     "Data Analyst": [
         ("SQL", "Which SQL statement filters rows from a table?", ["SELECT ... WHERE", "GROUP BY only", "ORDER BY only", "JOIN only"], 0),
         ("SQL", "What is a JOIN mainly used for?", ["Combining related data from tables", "Deleting a database", "Formatting text", "Making charts"], 0),
-        ("Data Visualisation", "Which chart is usually suitable for showing a trend over time?", ["Line chart", "Pie chart", "Scatter only", "Histogram only"], 0),
+        ("Data Visualisation", "Which chart is usually suitable for showing a trend over time?", ["Line chart", "Pie chart", "Histogram", "Box plot"], 0),
+        ("Data Visualisation", "Which chart is useful for comparing values across categories?", ["Bar chart", "Line chart only", "Area map only", "Gauge only"], 0),
         ("Statistics", "What does the mean represent?", ["Average value", "Most frequent value", "Middle value only", "Largest value"], 0),
+        ("Statistics", "What does the median represent?", ["The middle value when data are ordered", "The largest value", "The average of all categories", "The number of missing values"], 0),
         ("Python", "Which Python structure stores key-value pairs?", ["Dictionary", "List only", "Tuple only", "String"], 0),
+        ("Python", "Which keyword defines a function in Python?", ["def", "func", "function", "define"], 0),
         ("Communication", "What is most useful when presenting an analytical insight?", ["Evidence and a clear explanation", "Only technical jargon", "No context", "More slides regardless of content"], 0),
+        ("Communication", "A good data presentation should primarily:", ["Connect findings to the audience's decision", "Show every raw value", "Avoid explaining assumptions", "Use as many charts as possible"], 0),
     ],
     "Software Developer": [
         ("Python", "Which keyword defines a function in Python?", ["def", "func", "function", "define"], 0),
+        ("Python", "Which Python data type stores an ordered, changeable collection?", ["list", "set only", "float", "bool"], 0),
         ("JavaScript", "Which keyword declares a block-scoped variable?", ["let", "varname", "define", "newvar"], 0),
+        ("JavaScript", "Which method converts a JSON string into a JavaScript object?", ["JSON.parse()", "JSON.object()", "JSON.read()", "JSON.convert()"], 0),
         ("Problem Solving", "What is a good first step when debugging?", ["Reproduce and isolate the problem", "Rewrite everything", "Ignore the error", "Delete the project"], 0),
+        ("Problem Solving", "When an algorithm is too slow, a useful first step is to:", ["Measure and identify the bottleneck", "Add random code", "Delete test cases", "Ignore performance"], 0),
         ("Git", "Which command records staged changes?", ["git commit", "git start", "git save", "git upload"], 0),
+        ("Git", "Which Git command creates a new branch?", ["git branch", "git copy", "git fork-local", "git split"], 0),
         ("Communication", "A good code review comment should be:", ["Specific and constructive", "Personal", "Vague", "Only negative"], 0),
+        ("Communication", "When explaining a technical issue to a non-technical teammate, you should:", ["Use clear language and focus on impact", "Use only jargon", "Skip the explanation", "Show raw logs only"], 0),
     ],
     "AI/ML Engineer": [
         ("Python", "Which Python library is commonly used for numerical arrays?", ["NumPy", "Flask", "BeautifulSoup", "Requests only"], 0),
+        ("Python", "Which Python library is widely used for working with tabular data?", ["pandas", "pygame", "tkinter", "turtle"], 0),
         ("Math", "What does a probability value range from?", ["0 to 1", "1 to 100 only", "-100 to 100", "0 to infinity only"], 0),
+        ("Math", "If a model has probability 0.8 for an event, this means:", ["The model assigns an 80% probability to that event", "The event must happen", "The value is a percentage error", "The model is 8 times faster"], 0),
         ("Machine Learning", "What is a training set used for?", ["Learning model parameters", "Only displaying results", "Deleting features", "Formatting a report"], 0),
+        ("Machine Learning", "Why is a validation set useful?", ["To help tune and evaluate choices during development", "To replace the training data", "To store application passwords", "To format the model"], 0),
         ("SQL", "Why might ML engineers use SQL?", ["To retrieve and prepare data", "Only to draw UI", "To replace Python", "To create animations"], 0),
+        ("SQL", "Which SQL clause is commonly used to filter grouped results?", ["HAVING", "WHERE only", "ORDER BY only", "JOIN only"], 0),
         ("Communication", "When explaining a model, you should include:", ["Assumptions, results and limitations", "Only accuracy", "Only code", "No context"], 0),
+        ("Communication", "A responsible AI explanation should mention:", ["Important limitations and possible sources of error", "Only the best result", "Only the model name", "Nothing about uncertainty"], 0),
     ],
     "UI/UX Designer": [
         ("UX Research", "What is a user interview mainly for?", ["Understanding user needs and experiences", "Choosing database indexes", "Writing backend code", "Compressing images"], 0),
+        ("UX Research", "Usability testing is mainly used to:", ["Observe users completing tasks and find friction", "Choose a programming language", "Optimize database queries", "Write marketing copy"], 0),
         ("Figma", "Figma is primarily used for:", ["Interface design and prototyping", "SQL queries", "Server hosting", "Data mining"], 0),
+        ("Figma", "In Figma, reusable design elements are commonly organized as:", ["Components", "Databases", "Endpoints", "Packages"], 0),
         ("Visual Design", "Contrast helps improve:", ["Readability and hierarchy", "Database speed", "API latency", "File compression"], 0),
+        ("Visual Design", "Visual hierarchy helps users:", ["Understand what to notice first", "Increase server memory", "Write SQL queries", "Compress images"], 0),
         ("Prototyping", "A prototype is useful for:", ["Testing an interaction before full build", "Replacing all research", "Deploying a server", "Training an ML model"], 0),
+        ("Prototyping", "A low-fidelity prototype is usually useful for:", ["Testing structure and flow early", "Finalizing every visual detail", "Deploying production code", "Measuring server CPU"], 0),
         ("Communication", "A design rationale should explain:", ["Why a design decision supports the user", "Only personal preference", "Only colors", "Nothing"], 0),
+        ("Communication", "When presenting a design, it is useful to:", ["Explain decisions using user needs and evidence", "Discuss only personal taste", "Avoid feedback", "Show only the final screen"], 0),
     ],
     "Digital Marketer": [
         ("Content", "A strong piece of content should first provide:", ["Value to the target audience", "Random keywords", "Only promotion", "No clear purpose"], 0),
+        ("Content", "A content strategy should start by understanding:", ["The target audience and their needs", "Only the logo", "Only competitors' colors", "Nothing about the audience"], 0),
         ("Analytics", "A conversion rate measures:", ["The proportion completing a desired action", "Only page color", "Server uptime", "Number of employees"], 0),
+        ("Analytics", "A useful marketing KPI should be:", ["Relevant to the campaign objective", "Chosen only because it is large", "Unrelated to outcomes", "Impossible to measure"], 0),
         ("SEO", "SEO primarily aims to improve:", ["Search visibility", "Screen brightness", "Database storage", "Email encryption"], 0),
+        ("SEO", "Search intent refers to:", ["What a user is trying to accomplish with a search", "The website's color scheme", "Server location", "Email delivery speed"], 0),
         ("Social Media", "Engagement can include:", ["Comments, shares and saves", "Only impressions", "Only page load time", "Server CPU"], 0),
+        ("Social Media", "A social media content calendar helps a team:", ["Plan and organize content consistently", "Encrypt passwords", "Optimize SQL", "Design databases"], 0),
         ("Communication", "A good campaign brief should define:", ["Audience, objective and message", "Only a logo", "Only a budget", "No measurable goal"], 0),
+        ("Communication", "A marketing recommendation should be supported by:", ["Relevant data and a clear objective", "Only personal preference", "Random trends", "No evidence"], 0),
     ],
 }
 
@@ -128,7 +152,7 @@ class Answer(BaseModel):
     skill: str
     question: str
     selected: int
-    correct: int
+    
 
 class Complete(BaseModel):
     student_id: int
@@ -157,56 +181,39 @@ def create_student(p: Profile):
 def get_questions(student_id:int):
     c=conn(); s=c.execute("SELECT * FROM students WHERE id=?",(student_id,)).fetchone(); c.close()
     if not s: raise HTTPException(404,"Student not found")
-    return [{"id":i,"skill":q[0],"question":q[1],"options":q[2]} for i,q in enumerate(QUESTIONS[s["role"]])]
+    import random
+    by_skill={skill:[] for skill in ROLE_SKILLS[s["role"]]}
+    for q in QUESTIONS[s["role"]]:
+        by_skill.setdefault(q[0],[]).append(q)
+    selected=[]
+    for skill in ROLE_SKILLS[s["role"]]:
+        choices=by_skill.get(skill,[])
+        if not choices: continue
+        selected.append(random.choice(choices))
+    random.shuffle(selected)
+    out=[]
+    for i,q in enumerate(selected):
+        options=list(q[2]); random.shuffle(options)
+        out.append({"id":i,"skill":q[0],"question":q[1],"options":options})
+    return out
 
 @app.post("/api/answers")
 def save_answer(a: Answer):
-    c = conn()
-    student = c.execute(
-        "SELECT * FROM students WHERE id=?",
-        (a.student_id,)
-    ).fetchone()
-
-    if not student:
-        c.close()
-        raise HTTPException(404, "Student not found")
-
-    # Find the real question in the server-side question bank.
-    question_bank = QUESTIONS.get(student["role"], [])
-    matched = next(
-        (q for q in question_bank if q[0] == a.skill and q[1] == a.question),
-        None
-    )
-
-    if not matched:
-        c.close()
-        raise HTTPException(400, "Invalid assessment question")
-
-    options = matched[2]
-    correct_index = matched[3]
-
-    if a.selected < 0 or a.selected >= len(options):
-        c.close()
-        raise HTTPException(400, "Invalid answer option")
-
-    # The backend calculates correctness; the browser cannot fake the score.
-    is_correct = 1 if a.selected == correct_index else 0
-
-    c.execute(
-        """INSERT INTO answers(student_id,skill,question,selected,correct,created_at)
-           VALUES(?,?,?,?,?,?)""",
-        (
-            a.student_id,
-            a.skill,
-            a.question,
-            a.selected,
-            is_correct,
-            datetime.now().isoformat()
-        )
-    )
-    c.commit()
-    c.close()
-    return {"ok": True, "correct": bool(is_correct)}
+    c=conn()
+    student=c.execute("SELECT * FROM students WHERE id=?",(a.student_id,)).fetchone()
+    if not student: c.close(); raise HTTPException(404,"Student not found")
+    question_match=None
+    for q in QUESTIONS.get(student["role"],[]):
+        if q[0]==a.skill and q[1]==a.question:
+            question_match=q; break
+    if not question_match: c.close(); raise HTTPException(400,"Invalid assessment question")
+    selected_text=str(a.selected)
+    correct_text=question_match[2][question_match[3]]
+    is_correct=1 if selected_text==correct_text else 0
+    c.execute("""INSERT INTO answers(student_id,skill,question,selected,correct,created_at)
+                VALUES(?,?,?,?,?,?)""",(a.student_id,a.skill,a.question,selected_text,is_correct,datetime.now().isoformat()))
+    c.commit(); c.close()
+    return {"ok":True,"correct":bool(is_correct)}
 
 def scores(student_id):
     c=conn(); s=c.execute("SELECT * FROM students WHERE id=?",(student_id,)).fetchone()
@@ -254,7 +261,7 @@ def courses(student_id: int):
             "Practice SQL queries, filtering, grouping and data analysis.",
             "https://sqlbolt.com/"
         ),
-        "Data Visualisation": (
+        "Data Visualization": (
             "Data Visualization",
             "Beginner",
             "Learn how to turn data into clear and useful visualizations.",
@@ -338,9 +345,15 @@ def courses(student_id: int):
     out = []
 
     for skill, score in weak[:3]:
-        item = resources.get(skill)
-        if not item:
-            continue
+        item = resources.get(
+            skill,
+            (
+                f"{skill} Skill Builder",
+                "Beginner",
+                f"Focused learning and practice for {skill}.",
+                "https://www.freecodecamp.org/learn/"
+            )
+        )
 
         existing = c.execute(
             "SELECT id,done FROM progress WHERE student_id=? AND skill=? ORDER BY id DESC LIMIT 1",
@@ -371,31 +384,13 @@ def create_progress(a: Complete):
 
 @app.post("/api/progress/start/{student_id}/{skill}")
 def start_course(student_id:int,skill:str):
-    if skill not in COURSES:
-        raise HTTPException(404, "Course not found for this skill")
-    item = COURSES[skill]
+    item=COURSES.get(skill,[f"{skill} Skill Builder","Beginner","Focused practice"])
     due=(datetime.now()+timedelta(days=7)).date().isoformat()
     c=conn()
-    existing = c.execute(
-        "SELECT id,done,due_date FROM progress WHERE student_id=? AND skill=? ORDER BY id DESC LIMIT 1",
-        (student_id, skill)
-    ).fetchone()
-
-    if existing:
-        c.close()
-        return {
-            "id": existing["id"],
-            "due_date": existing["due_date"],
-            "already_started": True,
-            "done": bool(existing["done"])
-        }
-
-    cur=c.execute(
-        "INSERT INTO progress(student_id,skill,course,done,due_date,updated_at) VALUES(?,?,?,?,?,?)",
-        (student_id,skill,item[0],0,due,datetime.now().isoformat())
-    )
+    cur=c.execute("INSERT INTO progress(student_id,skill,course,done,due_date,updated_at) VALUES(?,?,?,?,?,?)",
+                  (student_id,skill,item[0],0,due,datetime.now().isoformat()))
     c.commit(); pid=cur.lastrowid; c.close()
-    return {"id":pid,"due_date":due,"already_started":False,"done":False}
+    return {"id":pid,"due_date":due}
 
 @app.get("/api/dashboard/{student_id}")
 def dashboard(student_id:int):
